@@ -46,5 +46,5 @@ app.get('/rankedItems', function(req, res) {
   res.status(201).send(itemService.getRankedItems());
 });
 
-app.listen(3000, '0.0.0.0');
+app.listen(process.env.PORT || 3000);
 console.log('Express server started on port %s', 3000);
