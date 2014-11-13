@@ -1,1 +1,6 @@
+deploy: 
+  api_key: 
+    secure: hdLa25Dt1dYWs79xjvMeV5fK5MZoDbU+bEpa+Xr4i4Os7I71Q5rZ0HyRpUMhsCkbEmWFvpJ2ylytHGv7eRW/ih5TwM3wIhza+0x8Z9pjD9AkUGevM6Q3SexLdZi4DY1uupFvaeCJibxkIIGRpsSxwC3frSmhQzRPfzg/ggAuGB0=
+  app: ranktank-srv
+  provider: heroku
 language: node_js
