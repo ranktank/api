@@ -1,3 +1,9 @@
+deploy: 
+  provider: heroku
+  app: ranktank-srv
+  strategy: git
+  api_key: 
+    secure: lBNxc2RzkVMSGsFaF+LY7XrqbBCmwCrzObfkuFpEJY9Y95nSmOa1nUxy5vxX0Vz3vwI1fpETB8VCwicZiKRni6FxvoRizuKtTBKOSuYfTepKgaNy3D2bOHuju3dlMR1StOvbdHYm91wxbgHMW14iaD2lmxA4zYfQ9br30cEfWEM=
 language: node_js
-node_js:
-  - "0.10"
+node_js: 
+- "0.10"
