@@ -1,9 +1,12 @@
 var express = require('express');
+var cors = require('cors');
 var app = express();
+app.use(cors());
 
 var bodyParser = require('body-parser')
 var _ = require('underscore');
 var itemService = require('./itemService');
+var rankingService = require('./rankingService');
 
 // create application/json parser
 var jsonParser = bodyParser.json();
@@ -31,7 +34,7 @@ app.get('/items/:id', function(req, res) {
 });
 
 app.get('/items', function(req, res) {
-  res.status(201).send(itemService.getAll());
+  res.status(200).send(itemService.getAll());
 });
 
 app.post('/items/:id/priority', jsonParser, function(req, res) {
@@ -39,12 +42,19 @@ app.post('/items/:id/priority', jsonParser, function(req, res) {
 
   console.log(req.body);
 
-  res.status(201).send(itemService.vote(req.params.id, req.body));
+  var vote = itemService.vote(req.params.id, req.body);
+
+  if (vote) {
+    rankingService.invalidate();
+  }
+
+  res.status(201).send();
 });
 
 app.get('/rankedItems', function(req, res) {
-  res.status(201).send(itemService.getRankedItems());
+  var items = itemService.getAll();
+  res.status(200).send(rankingService.getRankedItems(items));
 });
 
-app.listen(process.env.PORT || 3000);
+app.listen(3000, '0.0.0.0');
 console.log('Express server started on port %s', 3000);
