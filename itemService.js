@@ -43,3 +43,16 @@ exports.vote = function(itemId, vote) {
   return item;
 };
 
+exports.byUser = function(userId) {
+  var uItems = items.filter(function(item){
+    return item.priorities.hasOwnProperty(userId);
+  })
+  .map(function(item){
+    return {
+      "id" : item.id,
+      "title" : item.title
+    }
+  });
+
+  return uItems;
+};

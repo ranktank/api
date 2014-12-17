@@ -20,8 +20,7 @@ app.get('/index.html', function(req, res){
 });
 
 app.get('/', function(req, res){
-  res.setHeader('Content-Type', 'application/json');
-  res.send({a: 1});
+  res.sendFile('index.html',{ root: path.join(__dirname, 'public') });
 });
 
 app.post('/items', jsonParser, function(req, res) {
@@ -60,6 +59,23 @@ app.get('/rankedItems', function(req, res) {
   var items = itemService.getAll();
   res.status(200).send(rankingService.getRankedItems(items));
 });
+
+app.get('/ranks', function(req,res){
+  var items = itemService.getAll();
+  var ranked = rankingService.getRankedItems(items);
+  var rankedOut = ranked.map(function(aRank){
+    return {
+      "id" : aRank.id,
+      "title" : aRank.title
+    }
+  })
+  res.status(200).send(rankedOut);
+});
+
+app.get('/ranks/user/:userId', function(req,res){
+  var uRanks = itemService.byUser(req.params.userId)
+  res.status(200).send(uRanks);
+})
 
 app.listen(3000, '0.0.0.0');
 console.log('Express server started on port %s', 3000);
