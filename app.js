@@ -1,5 +1,6 @@
 var express = require('express');
 var cors = require('cors');
+var path = require('path');
 var app = express();
 app.use(cors());
 
@@ -13,6 +14,10 @@ var jsonParser = bodyParser.json();
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+app.get('/index.html', function(req, res){
+  res.sendFile('index.html',{ root: path.join(__dirname, 'public') });
+});
 
 app.get('/', function(req, res){
   res.setHeader('Content-Type', 'application/json');
