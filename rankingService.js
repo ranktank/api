@@ -27,9 +27,24 @@ var rankedScores = function(items) {
   return scores;
 };
 
-exports.getRankedItems = function(items) {
+var itemPriorities = function(userRankings) {
+  var items = {};
+
+  _.each(userRankings, function(rankings, userId) {
+    _.each(rankings, function(item, rank) {
+      items[item.id] = items[item.id] || _.clone(item);
+      items[item.id].priorities = items[item.id].priorities || {};
+      items[item.id].priorities[userId] = rank;
+    })
+  });
+
+  return _.values(items);
+}
+
+exports.getRankedItems = function(userRankings) {
   if (!currentRanksInvalidated) return currentRanks;
 
+  var items = itemPriorities(userRankings);
   var scores = rankedScores(items);
   var rankedItems = _.chain(items).filter(function(item) {
     return _.size(item.priorities) > 0;
