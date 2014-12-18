@@ -8,6 +8,7 @@ var bodyParser = require('body-parser')
 var _ = require('underscore');
 var itemService = require('./itemService');
 var rankingService = require('./rankingService');
+var userService = require('./userService');
 
 // create application/json parser
 var jsonParser = bodyParser.json();
@@ -61,8 +62,8 @@ app.get('/rankedItems', function(req, res) {
 });
 
 app.get('/ranks', function(req,res){
-  var items = itemService.getAll();
-  var ranked = rankingService.getRankedItems(items);
+  var userRanks = userService.getAll();
+  var ranked = rankingService.getRankedItems(userRanks);
   var rankedOut = ranked.map(function(aRank){
     return {
       "id" : aRank.id,
@@ -73,9 +74,19 @@ app.get('/ranks', function(req,res){
 });
 
 app.get('/ranks/user/:userId', function(req,res){
-  var uRanks = itemService.byUser(req.params.userId)
-  res.status(200).send(uRanks);
-})
+  return res.send(userService.get(req.params.userId) || {});
+});
+
+app.post('/ranks/user/:userId', jsonParser, function(req, res){
+  if (!req.body) return res.sendStatus(400);
+
+  console.log(req.body);
+
+  var ret = userService.set(req.params.userId, req.body);
+
+  if (ret) return res.sendStatus(200);
+  else return res.sendStatus(400);
+});
 
 app.listen(3000, '0.0.0.0');
 console.log('Express server started on port %s', 3000);
