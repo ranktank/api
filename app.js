@@ -1,20 +1,16 @@
 var express = require('express');
 var cors = require('cors');
 var path = require('path');
-var app = express();
-app.use(cors());
-
 var bodyParser = require('body-parser')
-var _ = require('underscore');
-var itemService = require('./itemService');
+
+var tankService = require('./tankService');
 var rankingService = require('./rankingService');
 var userService = require('./userService');
 
-// create application/json parser
-var jsonParser = bodyParser.json();
+var app = express();
 
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+app.use(cors());
+app.use(bodyParser.json());
 
 app.get('/index.html', function(req, res){
   res.sendFile('index.html',{ root: path.join(__dirname, 'public') });
@@ -24,40 +20,36 @@ app.get('/', function(req, res){
   res.sendFile('index.html',{ root: path.join(__dirname, 'public') });
 });
 
-app.post('/items', jsonParser, function(req, res) {
-  if (!req.body) return res.sendStatus(400);
+app.post('/tanks', function(req, res) {
+  if (!req.body || !req.get('user-id')) return res.sendStatus(400); 
 
-  console.log(req.body);
-
-  res.status(201).send(itemService.add(req.body));
+  res.status(201).send(tankService.create(req.body, req.get('user-id')));
 });
 
-app.get('/items/:id', function(req, res) {
-  var item = itemService.get(req.params.id);
+app.get('/tanks/:id', function(req, res) {
+  var tank = tankService.get(req.params.id);
 
-  item ? res.status(200).send(item) : res.sendStatus(404);
+  tank ? res.status(200).send(tank) : res.sendStatus(404);
 });
 
-app.get('/items', function(req, res) {
-  res.status(200).send(itemService.getAll());
+app.get('/tanks/:id/users', function(req, res) {
+  var users = tankService.getTankUsers(req.params.id);
+
+  res.status(200).send(users);
 });
 
-app.post('/items/:id/priority', jsonParser, function(req, res) {
-  if (!req.body) return res.sendStatus(400);
+app.post('/tanks/:id/users', function(req, res) {
+  if (!req.get('user-id')) return res.sendStatus(400);
 
-  console.log(req.body);
+  res.status(201).send(tankService.addTankUser(req.params.id, req.get('user-id')));
+});
 
-  var vote = itemService.vote(req.params.id, req.body);
-
-  if (vote) {
-    rankingService.invalidate();
-  }
-
-  res.status(201).send();
+app.get('/tanks/:id/users/:userId/items', function(req, res) {
+  res.status(200).send(tankService.getTankUserItems(req.params.id, req.get('user-id')));
 });
 
 app.get('/rankedItems', function(req, res) {
-  var items = itemService.getAll();
+  var items = tankService.getAll();
   res.status(200).send(rankingService.getRankedItems(items));
 });
 
@@ -77,7 +69,7 @@ app.get('/ranks/user/:userId', function(req,res){
   return res.send(userService.get(req.params.userId) || {});
 });
 
-app.post('/ranks/user/:userId', jsonParser, function(req, res){
+app.post('/ranks/user/:userId', function(req, res){
   if (!req.body) return res.sendStatus(400);
 
   console.log(req.body);
