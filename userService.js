@@ -1,31 +1,66 @@
 var _ = require('underscore');
+var users = [];
 
-var userRankings = {};
+function add(user) {
+  if (!_.isObject(user)) {
+    return;
+  }
 
-// {
-//   "steven" : [
-//     { "id" : "3", "title" : "c"},
-//     { "id" : "2", "title" : "b"},
-//     { "id" : "1", "title" : "a"}
-//   ],
-//   "sam" : [
-//     { "id" : "3", "title" : "c"},
-//     { "id" : "1", "title" : "a"},
-//     { "id" : "4", "title" : "d"}
-//   ]
-// }
+  users.push(_.extend(user, {
+    id: _.uniqueId()
+  }));
 
-//Add or Update
-exports.set = function(userId, rankings) {
-  userRankings[userId] = rankings;
-  return rankings;
+  return user;
 };
 
-exports.get = function(userId) {
-  console.log('getting '+userId);
-  return userRankings[userId];
+function get(userId) {
+  return _.findWhere(users, {
+    id: userId
+  });
 };
 
-exports.getAll = function() {
-  return userRankings;
+function update(userId, user) {
+  if (!_.isObject(user)) {
+    return;
+  }
+
+  var existingUser = get(userId);
+
+  if (!existingUser) {
+    return;
+  }
+
+  users = _.without(users, existingUser);
+
+  users.push(_.extend(user, {
+    id: userId
+  }));
+
+  return user;
 };
+
+function remove(userId) {
+  var user = _.findWhere(users, {
+    id: userId
+  });
+
+  if (!user) {
+    return false;
+  }
+
+  users = _.without(users, user);
+
+  return true;
+}
+
+function all() {
+  return _.sortBy(users, 'id');
+};
+
+module.exports = {
+  add: add,
+  get: get,
+  update: update,
+  remove: remove,
+  all: all
+}

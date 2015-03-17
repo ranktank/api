@@ -1,20 +1,16 @@
 var express = require('express');
 var cors = require('cors');
 var path = require('path');
-var app = express();
-app.use(cors());
-
 var bodyParser = require('body-parser')
-var _ = require('underscore');
+
 var itemService = require('./itemService');
 var rankingService = require('./rankingService');
 var userService = require('./userService');
 
-// create application/json parser
-var jsonParser = bodyParser.json();
+var app = express();
 
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+app.use(cors());
+app.use(bodyParser.json());
 
 app.get('/index.html', function(req, res){
   res.sendFile('index.html',{ root: path.join(__dirname, 'public') });
@@ -24,7 +20,7 @@ app.get('/', function(req, res){
   res.sendFile('index.html',{ root: path.join(__dirname, 'public') });
 });
 
-app.post('/items', jsonParser, function(req, res) {
+app.post('/items', function(req, res) {
   if (!req.body) return res.sendStatus(400);
 
   console.log(req.body);
@@ -42,7 +38,7 @@ app.get('/items', function(req, res) {
   res.status(200).send(itemService.getAll());
 });
 
-app.post('/items/:id/priority', jsonParser, function(req, res) {
+app.post('/items/:id/priority', function(req, res) {
   if (!req.body) return res.sendStatus(400);
 
   console.log(req.body);
@@ -61,31 +57,50 @@ app.get('/rankedItems', function(req, res) {
   res.status(200).send(rankingService.getRankedItems(items));
 });
 
-app.get('/ranks', function(req,res){
-  var userRanks = userService.getAll();
-  var ranked = rankingService.getRankedItems(userRanks);
-  var rankedOut = ranked.map(function(aRank){
-    return {
-      "id" : aRank.id,
-      "title" : aRank.title
-    }
-  })
-  res.status(200).send(rankedOut);
-});
-
-app.get('/ranks/user/:userId', function(req,res){
-  return res.send(userService.get(req.params.userId) || {});
-});
-
-app.post('/ranks/user/:userId', jsonParser, function(req, res){
-  if (!req.body) return res.sendStatus(400);
-
+app.post('/users', function(req, res) {
   console.log(req.body);
 
-  var ret = userService.set(req.params.userId, req.body);
+  var user = userService.add(req.body);
 
-  if (ret) return res.sendStatus(200);
-  else return res.sendStatus(400);
+  if (user) {
+    return res.status(200).json(user);
+  }
+
+  res.sendStatus(400);
+});
+
+app.get('/users', function(req, res) {
+  res.status(200).send(userService.all());
+});
+
+app.get('/users/:userId', function(req, res) {
+  var user = userService.get(req.params.userId);
+
+  if (user) {
+    return res.status(200).send(user);
+  }
+
+  res.sendStatus(404);
+});
+
+app.put('/users/:userId', function(req, res) {
+  var user = userService.update(req.params.userId, req.body);
+
+  if (user) {
+    return res.status(200).send(user);
+  }
+
+  res.sendStatus(404);
+});
+
+app.delete('/users/:userId', function(req, res) {
+  var success = userService.remove(req.params.userId);
+
+  if (success) {
+    return res.sendStatus(204);
+  }
+
+  res.sendStatus(404);
 });
 
 app.listen(3000, '0.0.0.0');
