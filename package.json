@@ -13,12 +13,12 @@
     "tank",
     "ranktank"
   ],
-  "author": "Michael E. Davis | Sam Simmons",
+  "author": "Michael E. Davis | Sam Simmons | Steven Gangstead",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.9.0",
-    "cors": "^2.5.2",
+    "body-parser": "^1.12.1",
+    "cors": "^2.5.3",
     "express": "^4.12.2",
-    "underscore": "^1.7.0"
+    "underscore": "^1.8.2"
   }
 }
