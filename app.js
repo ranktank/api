@@ -26,6 +26,10 @@ app.post('/tanks', function(req, res) {
   res.status(201).send(tankService.create(req.body, req.get('user-id')));
 });
 
+app.get('/tanks', function(req, res) {
+  res.status(200).json(tankService.getAll());
+});
+
 app.get('/tanks/:id', function(req, res) {
   var tank = tankService.get(req.params.id);
 
@@ -41,11 +45,47 @@ app.get('/tanks/:id/users', function(req, res) {
 app.post('/tanks/:id/users', function(req, res) {
   if (!req.get('user-id')) return res.sendStatus(400);
 
-  res.status(201).send(tankService.addTankUser(req.params.id, req.get('user-id')));
+  var user = tankService.addTankUser(req.params.id, req.get('user-id'));
+
+  if (user) {
+    return res.status(200).send(user);
+  }
+
+  res.sendStatus(404);
+});
+
+app.get('/tanks/:id/users/:userId', function(req, res) {
+  var tankUser = tankService.getTankUser(req.params.id, req.params.userId);
+
+  if (tankUser) {
+    return res.status(200).send(tankUser);
+  }
+
+  res.sendStatus(404);
 });
 
 app.get('/tanks/:id/users/:userId/items', function(req, res) {
   res.status(200).send(tankService.getTankUserItems(req.params.id, req.get('user-id')));
+});
+
+app.post('/tanks/:id/items', function(req, res) {
+  var item = tankService.addTankItem(req.params.id, req.body);
+
+  if (item) {
+    return res.status(200).json(item);
+  }
+
+  return res.sendStatus(400);
+});
+
+app.get('/tanks/:id/items', function(req, res) {
+  var items = tankService.getTankItems(req.params.id);
+
+  if (items) {
+    return res.status(200).json(items);
+  }
+
+  return res.sendStatus(404);
 });
 
 app.get('/rankedItems', function(req, res) {
@@ -54,8 +94,6 @@ app.get('/rankedItems', function(req, res) {
 });
 
 app.post('/users', function(req, res) {
-  console.log(req.body);
-
   var user = userService.add(req.body);
 
   if (user) {
