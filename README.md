@@ -1,5 +1,5 @@
-ranktank
-========
+# ranktank
+
 The back end of Rank Tank
 
 ### Building
@@ -19,75 +19,253 @@ The back end of Rank Tank
 
 Hit the url `http://localhost:3000/index.html` for a shiny landing page.
 
+# API
 
-# API ideas
 A work in progress
 
-## `get` `/ranks`
-Ordered composite of all users' rankings.  Includes all items.
+## models
 
-* **Option1**
-```json
-[
-	{ "id" : "3", "title" : "c"},
-	{ "id" : "1", "title" : "a"},
-	{ "id" : "2", "title" : "b"},
-	{ "id" : "4", "title" : "d"}
-]
-```
-* **Option2**
-```json
-[
-	{ "rank": "1", "id" : "3", "title" : "c"},
-	{ "rank": "2", "id" : "1", "title" : "a"},
-	{ "rank": "2", "id" : "2", "title" : "b"},
-	{ "rank": "4", "id" : "4", "title" : "d"}
-]
-```
+### tank
 
-## `get`or`post`  `/ranks/user/:userId`
+```js
+tank: {
+  title: "Tank",
+  description: "This is a tank",
 
-One user's personal ranking
+  items: [{
+    // arbitrary props
+  }, {
+    ...
+  }],
 
-lower index = higher priority
+  // user info related to this tank
+  users: [{
+    user: _userId,
 
-* `get` `/ranks/user/steven`
-```json
-[
-	{ "id" : "3", "title" : "c"},
-	{ "id" : "2", "title" : "b"},
-	{ "id" : "1", "title" : "a"}
-]
-```
+    // history of user in this tank
+    actions: [{
+      action: 'joined',
+      date: new Date()
+    }],
 
-* `get` `/ranks/user/sam`
-```json
-[
-	{ "id" : "3", "title" : "c"},
-	{ "id" : "1", "title" : "a"},
-	{ "id" : "4", "title" : "d"}
-]
-```
-
-
-
-## Internal representation
-
-What's stored in the service
-
-```json
-{
-	"steven" : [
-		{ "id" : "3", "title" : "c"},
-		{ "id" : "2", "title" : "b"},
-		{ "id" : "1", "title" : "a"}
-	],
-	"sam" : [
-		{ "id" : "3", "title" : "c"},
-		{ "id" : "1", "title" : "a"},
-		{ "id" : "4", "title" : "d"}
-	]
+    // keeps track of item order per user
+    items: [{
+      item: _itemId,
+      list: 'bank',
+      relativePosition: 1000
+    }, {
+      item: _itemId,
+      list: 'rank',
+      relativePosition: 2000
+    }, {
+      ...
+    }]
+  }, {
+    // more users
+    ...
+  }]
 }
 ```
-Example usage:
-- `return userrankings[params.userid]`
+
+### users
+
+```js
+user: {
+  firstName: 'Optimus',
+  lastName: 'Prime',
+  username: 'tanker1',
+  email: 'prime@autobots.com',
+  photo: 'url://prime.png',
+  ...
+}
+```
+
+## endpoints
+
+### `GET /tanks`
+
+Response:
+
+```js
+[{tank}, {tank}, ...]
+```
+
+### `POST /tanks`
+
+Request:
+
+```js
+{
+  title: 'Rank',
+  description: 'Tank'
+}
+```
+
+Response:
+
+```js
+{tank}
+```
+
+### `GET /tanks/:tankId`
+
+Response:
+
+```js
+{tank}
+```
+
+### `PUT /tanks/:tankId`
+
+Request:
+
+```js
+{
+  title: 'New title',
+  description: 'New description'
+}
+```
+
+Response:
+
+```js
+{tank}
+```
+
+### `DELETE /tanks/:tankId`
+
+Nada
+
+### `GET /tanks/:tankId/users`
+
+Response:
+
+```js
+[{tank.user}, {tank.user}, ...]
+```
+
+### `POST /tanks/:tankId/users`
+
+Join a tank.
+
+Request:
+
+Nada
+
+Response:
+
+```js
+{tank.user}
+```
+
+### `DELETE /tanks/:tankId/users/:userId`
+
+Leave a tank
+
+### `GET /tanks/:tankId/users/:userId`
+
+Response:
+
+```js
+{tank.user}
+```
+
+### `GET /tanks/:tankId/users/:userId/items`
+
+Response:
+
+```js
+[{tank.user.item}, {tank.user.item}, ...]
+```
+
+
+### `PUT /tanks/:tankId/users/:userId/items/:itemId`
+
+Move items between lists or reorder items within a list.
+
+Request:
+
+```js
+{
+  list: 'rank',
+  relativePosition: 1001
+}
+```
+
+Response:
+
+```js
+{tank.user.item}
+```
+
+### `GET /tanks/:tankId/ranked`
+
+[ranked]
+
+### `POST /tanks/:tankId/items`
+
+Also adds item to each user's item list.
+
+Request:
+
+```js
+{
+  // anything
+}
+```
+
+Response:
+
+```js
+{item}
+```
+
+### `GET /tanks/:tankId/items`
+
+```js
+[{item}, {item}, ...]
+```
+
+### `GET /tanks/:tankId/items/:itemId`
+
+```js
+{item}
+```
+
+### `PUT /tanks/:tankId/items/:itemId`
+
+Request:
+
+```js
+{
+  // anything
+}
+```
+
+Response:
+
+```js
+{item}
+```
+
+### `DELETE /tanks/:tankId/items/:itemId`
+
+Also remove item from everyone's `userTank`
+
+### `POST /users`
+
+Request:
+
+```js
+{user}
+```
+
+Response:
+
+```js
+{user}
+```
+
+### `GET | PUT | DELETE /users/:userId`
+
+CRUD on users.
