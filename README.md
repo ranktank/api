@@ -19,10 +19,6 @@ The back end of Rank Tank
 
 Hit the url `http://localhost:3000/index.html` for a shiny landing page.
 
-# API
-
-A work in progress
-
 ## models
 
 ### tank
@@ -80,7 +76,7 @@ user: {
 }
 ```
 
-## endpoints
+## API endpoints
 
 ### `GET /tanks`
 
@@ -134,7 +130,7 @@ Response:
 
 ### `DELETE /tanks/:tankId`
 
-Nada
+Yanks a tank of ranks from your bank.
 
 ### `GET /tanks/:tankId/users`
 
